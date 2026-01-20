@@ -39,7 +39,7 @@ start_container() {
   # Get the git remote URL and construct the registry source
   REGISTRY_SOURCE=$(git remote get-url origin 2>/dev/null | sed 's/\.git$//')
   if [ -n "$REGISTRY_SOURCE" ]; then
-    REGISTRY_SOURCE="${REGISTRY_SOURCE}/custom-configs"
+    REGISTRY_SOURCE="${REGISTRY_SOURCE}"
   fi
 
   echo "=========================================="
@@ -47,11 +47,12 @@ start_container() {
   echo "=========================================="
   echo ""
   if [ -n "$REGISTRY_SOURCE" ]; then
-    echo "  After starting Obot, configure the Registry Source to:"
+    echo "  After starting Obot, replace the primary the Registry Source to:"
     echo ""
     echo "    $REGISTRY_SOURCE"
     echo ""
-    echo " at MCP Management -> MCP Servers -> Add MCP Server"
+    echo " add at MCP Management -> MCP Servers -> Add MCP Server"
+    echo " remove from MCP Management -> MCP Servers -> Registry Sources"
     echo ""
   else
     echo "  WARNING: Could not determine git remote URL"
