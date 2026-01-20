@@ -1,0 +1,107 @@
+name: LSP
+shortDescription: Connect Language Server Protocol (LSP) servers to LLMs for code analysis and completions
+description: |
+  A Model Context Protocol (MCP) server that bridges Language Server Protocol (LSP) servers with AI agents, enabling advanced code analysis capabilities. Access hover information, completions, diagnostics, and code actions across any LSP-supported language.
+
+  ## Features
+  - **Hover Information**: Get detailed information about code symbols at specific locations
+  - **Code Completions**: Access intelligent code completion suggestions from LSP servers
+  - **Diagnostics**: Retrieve real-time errors, warnings, and other diagnostic messages
+  - **Code Actions**: Get and apply code actions for specific ranges in files
+  - **Document Management**: Open and close files for LSP analysis
+  - **Server Control**: Start, restart, and manage LSP server lifecycle
+  - **Runtime Configuration**: Adjust log levels dynamically during operation
+  - **Multi-Language Support**: Works with any LSP-compliant language server
+
+  ## What you'll need to connect
+
+  **Required:**
+  - **Language ID**: The language identifier (e.g., "typescript", "python", "haskell")
+  - **LSP Path**: Absolute path to the LSP server executable
+  - **LSP Args**: Additional command-line arguments for the LSP server (optional)
+
+  **Setup:**
+  1. Install Node.js v16+ and npm
+  2. Install the LSP server for your target language
+  3. Note the path to the LSP executable
+  4. Call the `start_lsp` tool with your project's root directory before using other LSP features
+
+  ## Examples
+  - **Hover Info**: "Get hover information for the function at line 42 in main.ts"
+  - **Completions**: "What completions are available at this cursor position?"
+  - **Diagnostics**: "Show me all errors and warnings in the open files"
+  - **Code Actions**: "What code actions are available for this range?"
+
+metadata:
+  categories: Developer Tools
+icon: https://avatars.githubusercontent.com/u/3002092?v=4
+repoURL: https://github.com/Tritlo/lsp-mcp
+env:
+  - key: LANGUAGE_ID
+    name: Language ID
+    required: true
+    sensitive: false
+    description: The language identifier for the LSP server (e.g., typescript, python, haskell, rust)
+  - key: LSP_PATH
+    name: LSP Server Path
+    required: true
+    sensitive: false
+    description: Absolute path to the LSP server executable
+  - key: LSP_ARGS
+    name: LSP Arguments
+    required: false
+    sensitive: false
+    description: Additional command-line arguments to pass to the LSP server
+runtime: containerized
+containerizedConfig:
+  image: ghcr.io/obot-platform/mcp-images/lsp-mcp:latest
+  port: 8099
+  path: /
+  args:
+    - npx
+    - tritlo/lsp-mcp
+    - ${LANGUAGE_ID}
+    - ${LSP_PATH}
+toolPreview:
+  - name: start_lsp
+    description: Initialize the LSP server with a root directory. Must be called first before using other LSP features.
+    params:
+      rootDirectory: The root directory of the project to analyze
+  - name: hover
+    description: Get hover information at a specific location in a file
+    params:
+      uri: The URI of the file
+      line: The line number (0-indexed)
+      character: The character position (0-indexed)
+  - name: completion
+    description: Get code completion suggestions at a specific location in a file
+    params:
+      uri: The URI of the file
+      line: The line number (0-indexed)
+      character: The character position (0-indexed)
+  - name: code_action
+    description: Get available code actions for a specific range in a file
+    params:
+      uri: The URI of the file
+      startLine: The starting line number (0-indexed)
+      startCharacter: The starting character position (0-indexed)
+      endLine: The ending line number (0-indexed)
+      endCharacter: The ending character position (0-indexed)
+  - name: diagnostics
+    description: Get diagnostic messages (errors, warnings) for all open files
+  - name: open_document
+    description: Open a document for LSP analysis
+    params:
+      uri: The URI of the file to open
+      languageId: The language identifier for the file
+      text: The content of the file
+  - name: close_document
+    description: Close a previously opened document
+    params:
+      uri: The URI of the file to close
+  - name: restart_lsp
+    description: Restart the LSP server
+  - name: set_log_level
+    description: Set the logging level for the LSP-MCP server
+    params:
+      level: The log level (debug, info, notice, warning, error, critical, alert, emergency)
