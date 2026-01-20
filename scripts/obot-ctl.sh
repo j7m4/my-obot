@@ -36,6 +36,32 @@ start_container() {
     fi
   fi
 
+  # Get the git remote URL and construct the registry source
+  REGISTRY_SOURCE=$(git remote get-url origin 2>/dev/null | sed 's/\.git$//')
+  if [ -n "$REGISTRY_SOURCE" ]; then
+    REGISTRY_SOURCE="${REGISTRY_SOURCE}/custom-configs"
+  fi
+
+  echo "=========================================="
+  echo "  IMPORTANT: REGISTRY SOURCE CONFIGURATION"
+  echo "=========================================="
+  echo ""
+  if [ -n "$REGISTRY_SOURCE" ]; then
+    echo "  After starting Obot, configure the Registry Source to:"
+    echo ""
+    echo "    $REGISTRY_SOURCE"
+    echo ""
+    echo " at MCP Management -> MCP Servers -> Add MCP Server"
+    echo ""
+  else
+    echo "  WARNING: Could not determine git remote URL"
+    echo "  Manually set Registry Source to:"
+    echo "    <your-repo-url>/custom-configs"
+    echo ""
+  fi
+  echo "=========================================="
+  echo ""
+
   echo "Starting new obot deployment: $DEPLOYMENT"
   docker run -d \
     --name $CONTAINER_NAME \
@@ -48,6 +74,10 @@ start_container() {
   if [ $? -eq 0 ]; then
     echo "Container started successfully"
     echo "Access obot at: http://localhost:28282"
+    echo ""
+    if [ -n "$REGISTRY_SOURCE" ]; then
+      echo "REMINDER: Set Registry Source to: $REGISTRY_SOURCE"
+    fi
   else
     echo "Failed to start container"
     return 1
